@@ -1,0 +1,38 @@
+﻿# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+myenv/
+.venv/
+env/
+venv/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database & Logs
+*.log
+*.sqlite
+*.sqlite3

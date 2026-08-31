@@ -1,0 +1,26 @@
+﻿version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./collexa.db
+      - SECRET_KEY=collexa-enterprise-production-secure-secret-key-998877
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  frontend-dev:
+    image: node:20-alpine
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    profiles: ["dev"]
