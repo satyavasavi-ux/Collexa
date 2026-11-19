@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 from decimal import Decimal
 import models, schemas, database, dependencies, auth, datetime
@@ -96,6 +97,39 @@ async def get_admissions(
 ):
     return db.query(models.AdmissionRequest).all()
 
+@router.post("/admissions", response_model=schemas.AdmissionRequest)
+async def create_admission_request(
+    req_in: schemas.AdmissionRequestCreate,
+    db: Session = Depends(database.get_db)
+):
+    clean_email = req_in.email.strip().lower()
+    clean_course = req_in.desired_course.strip()
+    existing = db.query(models.AdmissionRequest).filter(
+        models.AdmissionRequest.email == clean_email,
+        models.AdmissionRequest.desired_course == clean_course
+    ).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="An admission application for this email and course already exists")
+    
+    new_req = models.AdmissionRequest(
+        first_name=req_in.first_name.strip(),
+        last_name=req_in.last_name.strip(),
+        email=clean_email,
+        phone_number=req_in.phone_number.strip(),
+        desired_course=clean_course,
+        status="Pending"
+    )
+    try:
+        db.add(new_req)
+        db.commit()
+        db.refresh(new_req)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An admission application for this email and course already exists")
+    
+    await manager.broadcast("ADMISSIONS_UPDATED")
+    return new_req
+
 @router.post("/admissions/{request_id}/approve")
 async def approve_admission(
     request_id: int,
@@ -110,36 +144,48 @@ async def approve_admission(
     
     req.status = "Approved"
     
-    # Auto-generate user account for the new student
-    temp_password = f"{req.first_name}@123"
-    db_user = models.User(
-        name=f"{req.first_name} {req.last_name}",
-        email=req.email,
-        hashed_password=auth.get_password_hash(temp_password),
-        role=models.UserRole.STUDENT
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    # Auto-generate user account for the new student with sanitized credentials
+    clean_first = req.first_name.strip()
+    clean_last = req.last_name.strip()
+    clean_email = req.email.strip().lower()
+    temp_password = f"{clean_first.replace(' ', '')}@123"
+
+    existing_user = db.query(models.User).filter(models.User.email == clean_email).first()
+    if existing_user:
+        db_user = existing_user
+    else:
+        db_user = models.User(
+            name=f"{clean_first} {clean_last}",
+            email=clean_email,
+            hashed_password=auth.get_password_hash(temp_password),
+            role=models.UserRole.STUDENT
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
     
-    # Create empty student profile
-    student = models.Student(
-        user_id=db_user.id,
-        department=req.desired_course,
-        year=1,
-        section="A",
-        phone_number=req.phone_number
-    )
-    db.add(student)
+    # Check or create student profile
+    student = db.query(models.Student).filter(models.Student.user_id == db_user.id).first()
+    if not student:
+        student = models.Student(
+            user_id=db_user.id,
+            department=req.desired_course,
+            year=1,
+            section="A",
+            phone_number=req.phone_number
+        )
+        db.add(student)
     
-    # Create initial fee schema
-    fee = models.Fee(
-        student_id=db_user.id,
-        total_amount=50000.0,
-        paid_amount=0.0,
-        due_amount=50000.0
-    )
-    db.add(fee)
+    # Check or create initial fee schema
+    fee = db.query(models.Fee).filter(models.Fee.student_id == db_user.id).first()
+    if not fee:
+        fee = models.Fee(
+            student_id=db_user.id,
+            total_amount=50000.0,
+            paid_amount=0.0,
+            due_amount=50000.0
+        )
+        db.add(fee)
     db.commit()
     
     # Broadcast admissions and users update

@@ -40,6 +40,7 @@ app.include_router(admin.router, prefix="/api/admin", tags=["Super Admin & User 
 app.include_router(student.router, prefix="/api/student", tags=["Student Lifecycle & Self-Service"])
 app.include_router(teacher.router, prefix="/api/teacher", tags=["Faculty Management & Grading"])
 app.include_router(staff.router, prefix="/api/staff", tags=["Staff Operations & Admissions"])
+app.include_router(staff.router, prefix="/staff", include_in_schema=False)
 app.include_router(timetable.router, prefix="/api/timetable", tags=["Timetable & Scheduling"])
 app.include_router(courses.router, prefix="/api/courses", tags=["Academic LMS & Course Modules"])
 app.include_router(exams.router, prefix="/api/exams", tags=["Examination & Transcripts"])

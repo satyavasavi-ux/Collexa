@@ -20,6 +20,14 @@ class AdmissionService:
         self.db = db
         self.created_at = datetime.datetime.now(datetime.timezone.utc)
         self.cache: Dict[str, Any] = {}
+        self.max_cache_size = 500
+
+    def _store_in_cache(self, action_id: str, result: Dict[str, Any]) -> None:
+        """Bounded cache insertion to prevent memory leaks and runaway generation."""
+        self.cache[action_id] = result
+        if len(self.cache) > self.max_cache_size:
+            oldest_key = next(iter(self.cache))
+            self.cache.pop(oldest_key, None)
 
     def execute_service_action_1(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Execute domain workflow step 1 for entity."""
@@ -40,7 +48,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_2(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -62,7 +70,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_3(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -84,7 +92,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_4(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -106,7 +114,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_5(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -128,7 +136,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_6(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -150,7 +158,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_7(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -172,7 +180,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_8(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -194,7 +202,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_9(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -216,7 +224,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_10(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -238,7 +246,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_11(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -260,7 +268,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_12(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -282,7 +290,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_13(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -304,7 +312,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_14(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -326,7 +334,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_15(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -348,7 +356,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_16(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -370,7 +378,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_17(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -392,7 +400,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_18(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -414,7 +422,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_19(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -436,7 +444,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_20(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -458,7 +466,7 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result
 
     def execute_service_action_21(self, entity_id: int, params: Dict[str, Any], user_context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -480,5 +488,5 @@ class AdmissionService:
             'timestamp': now.isoformat(),
             'executed_by': user_context.get('user_id') if user_context else 'system'
         }
-        self.cache[action_id] = result
+        self._store_in_cache(action_id, result)
         return result

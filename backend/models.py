@@ -2,7 +2,7 @@
 import datetime
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, DateTime, Date, ForeignKey, 
-    Text, Enum, Numeric
+    Text, Enum, Numeric, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from database import Base
@@ -267,6 +267,9 @@ class Notification(Base):
 
 class Application(Base):
     __tablename__ = "applications"
+    __table_args__ = (
+        UniqueConstraint("email", "course_applied", name="uq_application_email_course"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     applicant_name = Column(String(150), nullable=False)
@@ -465,6 +468,9 @@ class JobDrive(Base):
 
 class JobApplication(Base):
     __tablename__ = "job_applications"
+    __table_args__ = (
+        UniqueConstraint("drive_id", "student_id", name="uq_job_app_drive_student"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     drive_id = Column(Integer, ForeignKey("job_drives.id", ondelete="CASCADE"), nullable=False)
@@ -578,6 +584,9 @@ class Grievance(Base):
 
 class AdmissionRequest(Base):
     __tablename__ = "admission_requests"
+    __table_args__ = (
+        UniqueConstraint("email", "desired_course", name="uq_admission_request_email_course"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String(100), nullable=False)

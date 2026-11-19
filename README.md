@@ -41,7 +41,7 @@ Designed for universities and autonomous colleges, Collexa unifies student lifec
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/gandhikomarala/Coding-Raja-Internship.git
+git clone https://github.com/satyavasavi-ux/Collexa.git
 cd Collexa
 ```
 
