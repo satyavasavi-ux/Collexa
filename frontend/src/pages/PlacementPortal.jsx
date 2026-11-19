@@ -9,6 +9,7 @@ const PlacementPortal = () => {
     const [myApplications, setMyApplications] = useState([]);
     const [resumeUrl, setResumeUrl] = useState('');
     const [applyingDrive, setApplyingDrive] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
     const [msg, setMsg] = useState('');
 
     useEffect(() => {
@@ -30,12 +31,13 @@ const PlacementPortal = () => {
 
     const handleApply = async (e) => {
         e.preventDefault();
-        if (!applyingDrive) return;
+        if (!applyingDrive || submitting) return;
+        setSubmitting(true);
         try {
             await api.post('/api/placements/apply', {
                 drive_id: applyingDrive.id,
                 student_id: user?.id,
-                resume_url: resumeUrl || 'https://drive.collexa.edu/resumes/my_resume.pdf'
+                resume_url: resumeUrl?.trim() || 'https://drive.collexa.edu/resumes/my_resume.pdf'
             });
             setMsg(`Application successfully submitted to ${applyingDrive.company_name}!`);
             setApplyingDrive(null);
@@ -44,6 +46,8 @@ const PlacementPortal = () => {
             fetchPlacementData();
         } catch (err) {
             alert(err.response?.data?.detail || 'Failed to submit application');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -185,9 +189,10 @@ const PlacementPortal = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="w-1/2 py-3 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md"
+                                    disabled={submitting}
+                                    className="w-1/2 py-3 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md transition-all"
                                 >
-                                    Submit Application
+                                    {submitting ? 'Submitting...' : 'Submit Application'}
                                 </button>
                             </div>
                         </form>

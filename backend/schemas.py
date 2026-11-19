@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, EmailStr, Field, ConfigDict
+﻿from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 from typing import List, Optional, Any
 from datetime import datetime, date
 from decimal import Decimal
@@ -330,6 +330,17 @@ class ApplicationBase(BaseModel):
     status: str = "Pending"
     review_notes: Optional[str] = None
 
+    @field_validator("applicant_name", "phone", "course_applied", mode="before")
+    @classmethod
+    def validate_non_empty_trimmed(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                raise ValueError("Field cannot be empty or contain only whitespace")
+            if len(v) < 2:
+                raise ValueError("Field must be at least 2 characters long")
+        return v
+
 class ApplicationCreate(ApplicationBase):
     pass
 
@@ -532,6 +543,17 @@ class JobApplicationBase(BaseModel):
     status: str = "Applied"
     feedback: Optional[str] = None
 
+    @field_validator("resume_url", mode="before")
+    @classmethod
+    def validate_resume_url(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                raise ValueError("Resume URL cannot be empty or contain only whitespace")
+            if not (v.startswith("http://") or v.startswith("https://")):
+                raise ValueError("Resume URL must be a valid http or https URL")
+        return v
+
 class JobApplicationCreate(JobApplicationBase):
     pass
 
@@ -671,6 +693,20 @@ class AdmissionRequestBase(BaseModel):
     phone_number: str
     desired_course: str = "Computer Science"
     status: str = "Pending"
+
+    @field_validator("first_name", "last_name", "phone_number", "desired_course", mode="before")
+    @classmethod
+    def validate_admission_fields(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                raise ValueError("Field cannot be empty or contain only whitespace")
+            if len(v) < 2:
+                raise ValueError("Field must be at least 2 characters long")
+        return v
+
+class AdmissionRequestCreate(AdmissionRequestBase):
+    pass
 
 class AdmissionRequest(AdmissionRequestBase):
     id: int

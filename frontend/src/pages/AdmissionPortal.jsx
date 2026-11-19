@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { getWsUrl } from '../utils/config';
 import {
     UserPlus, CheckCircle2, X, ClipboardList, Search,
     GraduationCap, Clock, Mail, Phone, Calculator
@@ -24,8 +25,7 @@ const AdmissionPortal = () => {
     useEffect(() => {
         fetchAdmissions();
         if (user?.id) {
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${wsProtocol}//localhost:8000/ws/${user.id}`;
+            const wsUrl = getWsUrl(user.id);
             const socket = new WebSocket(wsUrl);
             socket.onmessage = (event) => {
                 if (event.data === 'ADMISSIONS_UPDATED') fetchAdmissions();
@@ -100,10 +100,10 @@ const AdmissionPortal = () => {
                         <div key={a.id} className="p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 hover:bg-slate-50/50 transition-all group">
                             <div className="flex items-center flex-1">
                                 <div className="h-16 w-16 bg-white border-2 border-slate-100 rounded-[1.5rem] flex items-center justify-center text-2xl font-black text-brand-primary shadow-sm group-hover:scale-110 transition-transform">
-                                    {a.first_name[0]}
+                                    {(a.first_name?.trim() || '?')[0].toUpperCase()}
                                 </div>
                                 <div className="ml-5">
-                                    <h4 className="text-lg font-black text-brand-text">{a.first_name} {a.last_name}</h4>
+                                    <h4 className="text-lg font-black text-brand-text">{(a.first_name?.trim() || 'Applicant')} {(a.last_name?.trim() || '')}</h4>
                                     <div className="flex flex-wrap gap-4 mt-1">
                                         <span className="flex items-center text-xs font-bold text-slate-400"><Mail className="h-3 w-3 mr-1" /> {a.email}</span>
                                         <span className="flex items-center text-xs font-bold text-slate-400"><Phone className="h-3 w-3 mr-1" /> {a.phone_number}</span>

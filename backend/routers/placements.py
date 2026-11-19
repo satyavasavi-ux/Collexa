@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 import datetime
 import models, schemas, database, dependencies
@@ -46,15 +47,20 @@ async def apply_job_drive(
     if existing:
         raise HTTPException(status_code=400, detail="You have already applied to this drive")
 
+    clean_resume = app_in.resume_url.strip() if app_in.resume_url else "https://example.com/resume.pdf"
     app = models.JobApplication(
         drive_id=app_in.drive_id,
         student_id=current_user.id,
-        resume_url=app_in.resume_url,
+        resume_url=clean_resume,
         status="Applied"
     )
-    db.add(app)
-    db.commit()
-    db.refresh(app)
+    try:
+        db.add(app)
+        db.commit()
+        db.refresh(app)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="You have already applied to this drive")
     return app
 
 @router.get("/my-applications", response_model=List[schemas.JobApplication])
